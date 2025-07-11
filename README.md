@@ -7,6 +7,7 @@ Esta é uma implementação da [Rinha de Backend 2025](https://github.com/zanfra
 ### Bibliotecas
 
 - **Spring Boot:** Framework principal para a construção da aplicação.
+- **Spring Boot Starter Validation:** Para validação de dados de entrada.
 - **Spring Data JPA:** Simplifica o acesso a dados utilizando a abstração de repositórios.
 - **Spring Web:** Utilizado para a construção da API REST.
 - **Spring Cloud OpenFeign:** Cliente REST declarativo para a comunicação com serviços externos.
@@ -46,6 +47,7 @@ A aplicação estará disponível em `http://localhost:9999`.
 - Endpoint payments-summary
 - Docker
 - Configurar timeouts, circuit breaker, db connection pool
+- Testes :(
 - Deixar o POST payments idempotente [talvez][melhoria]
 
 ---
@@ -59,6 +61,7 @@ This is an implementation of the [Rinha de Backend 2025](https://github.com/zanf
 ### Libraries
 
 - **Spring Boot:** The main framework for building the application.
+- **Spring Boot Starter Validation:** For input data validation.
 - **Spring Data JPA:** Simplifies data access using the repository abstraction.
 - **Spring Web:** Used for building the REST API.
 - **Spring Cloud OpenFeign:** Declarative REST client for communicating with external services.
@@ -98,4 +101,5 @@ The application will be available at `http://localhost:9999`.
 - `payments-summary` endpoint
 - Docker
 - Configure timeouts, circuit breaker, db connection pool
+- Tests :(
 - Make the POST payments idempotent [maybe][improvement]
