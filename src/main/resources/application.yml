@@ -1,0 +1,25 @@
+server:
+  port: 9999
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/rinha2025
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+
+payment-processors:
+  default:
+    host: ${PAYMENT_PROCESSOR_DEFAULT_HOST:http://payment-processor-default:8080}
+  secondary:
+    host: ${PAYMENT_PROCESSOR_SECONDARY_HOST:http://payment-processor-fallback:8080}
