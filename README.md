@@ -13,7 +13,6 @@ Esta é uma implementação da [Rinha de Backend 2025](https://github.com/zanfra
 - **Spring Cloud OpenFeign:** Cliente REST declarativo para a comunicação com serviços externos.
 - **Spring Cloud Circuit Breaker (Resilience4j):** Implementa o padrão Circuit Breaker para tolerância a falhas.
 - **Flyway:** Ferramenta para versionamento e migração de banco de dados.
-- **PostgreSQL Driver:** Driver JDBC para a conexão com o banco de dados PostgreSQL.
 
 ### Padrões de Projeto
 
@@ -67,7 +66,6 @@ This is an implementation of the [Rinha de Backend 2025](https://github.com/zanf
 - **Spring Cloud OpenFeign:** Declarative REST client for communicating with external services.
 - **Spring Cloud Circuit Breaker (Resilience4j):** Implements the Circuit Breaker pattern for fault tolerance.
 - **Flyway:** Tool for database versioning and migration.
-- **PostgreSQL Driver:** JDBC driver for connecting to the PostgreSQL database.
 
 ### Design Patterns
 
