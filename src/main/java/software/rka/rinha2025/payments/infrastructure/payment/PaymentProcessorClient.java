@@ -36,6 +36,7 @@ public class PaymentProcessorClient {
             }
 
             // if server error, call fallback
+            logger.error("Error calling payment processor, calling fallback payment processor", e);
             return makePaymentFallback(paymentRequest);
         }
     }
