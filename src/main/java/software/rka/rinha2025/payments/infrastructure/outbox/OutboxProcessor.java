@@ -2,9 +2,6 @@ package software.rka.rinha2025.payments.infrastructure.outbox;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import software.rka.rinha2025.payments.infrastructure.outbox.strategy.OutboxProcessStrategy;
@@ -37,20 +34,17 @@ public class OutboxProcessor {
     public void processOutbox() {
         logger.info("Start processing outbox");
 
-        Pageable pageable = PageRequest.of(0, MAX_OUTBOX_QUERY_PAGE_SIZE);
-        Page<OutboxMessageEntity> pageOutboxMessages;
+        List<OutboxMessageEntity> pageOutboxMessages;
 
         do {
-            pageOutboxMessages = outboxRepository.findByStatusOrderByCreatedAt(OutboxMessageStatus.NEW, pageable);
+            pageOutboxMessages = outboxRepository.findNewOutboxMessages(MAX_OUTBOX_QUERY_PAGE_SIZE);
 
-            logger.info("Found {} messages to process, pageable={}", pageOutboxMessages.getContent().size(), pageable);
-            for (OutboxMessageEntity outboxMessage : pageOutboxMessages.getContent()) {
+            logger.info("Found {} messages to process", pageOutboxMessages.size());
+            for (OutboxMessageEntity outboxMessage : pageOutboxMessages) {
                 processMessage(outboxMessage);
             }
 
-            pageable = pageable.next();
-
-        } while (pageOutboxMessages.hasNext());
+        } while (!pageOutboxMessages.isEmpty());
 
         logger.info("Finished processing outbox");
     }
