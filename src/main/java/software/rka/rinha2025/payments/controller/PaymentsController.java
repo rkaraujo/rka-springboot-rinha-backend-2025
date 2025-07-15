@@ -2,18 +2,17 @@ package software.rka.rinha2025.payments.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import software.rka.rinha2025.payments.domain.Payment;
+import software.rka.rinha2025.payments.domain.PaymentSummary;
 import software.rka.rinha2025.payments.service.CreatePaymentInput;
 import software.rka.rinha2025.payments.service.PaymentService;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/payments")
 public class PaymentsController {
 
     private final PaymentService paymentService;
@@ -22,7 +21,7 @@ public class PaymentsController {
         this.paymentService = paymentService;
     }
 
-    @PostMapping
+    @PostMapping("/payments")
     public ResponseEntity<PaymentResponse> createPayment(@RequestBody PaymentRequest paymentRequest) {
         if (paymentRequest.correlationId() == null) {
             throw new RuntimeException("No correlationId received");
@@ -35,5 +34,13 @@ public class PaymentsController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new PaymentResponse(payment.getId(), paymentRequest.correlationId(), payment.getAmount()));
+    }
+
+    @GetMapping("/payments-summary")
+    public PaymentsSummaryResponse getPaymentsSummary(@RequestParam Instant from, @RequestParam Instant to) {
+        Map<String, PaymentSummary> paymentSummaryByPaymentProcessorLabel = paymentService.getPaymentsSummary(from, to);
+        PaymentSummary defaultPaymentSummary = paymentSummaryByPaymentProcessorLabel.get("default");
+        PaymentSummary fallbackPaymentSummary = paymentSummaryByPaymentProcessorLabel.get("fallback");
+        return new PaymentsSummaryResponse(defaultPaymentSummary, fallbackPaymentSummary);
     }
 }

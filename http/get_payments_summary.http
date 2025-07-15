@@ -1,0 +1,2 @@
+GET http://localhost:9999/payments-summary?from=2025-07-15T00:00:00.000Z&to=2025-07-15T23:59:59.000Z
+Content-Type: application/json

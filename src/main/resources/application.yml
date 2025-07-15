@@ -2,6 +2,10 @@ server:
   port: 9999
 
 spring:
+  threads:
+    virtual:
+      enabled: true
+
   datasource:
     url: jdbc:postgresql://localhost:5432/rinha2025
     username: ${DB_USER}
@@ -12,6 +16,13 @@ spring:
     openfeign:
       circuitbreaker:
         enabled: true
+
+logging:
+  level:
+    org:
+      springframework:
+        jdbc:
+          core: DEBUG
 
 payment-processors:
   default:

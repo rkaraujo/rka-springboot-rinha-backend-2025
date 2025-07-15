@@ -4,12 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import software.rka.rinha2025.payments.domain.Payment;
+import software.rka.rinha2025.payments.domain.PaymentSummary;
 import software.rka.rinha2025.payments.infrastructure.payment.PaymentProcessorClient;
 import software.rka.rinha2025.payments.infrastructure.payment.PaymentProcessorRequest;
 import software.rka.rinha2025.payments.infrastructure.payment.PaymentProcessorResponse;
 import software.rka.rinha2025.payments.persistence.PaymentRepository;
 
 import java.time.Instant;
+import java.util.Map;
 
 @Service
 public class PaymentService {
@@ -49,5 +51,9 @@ public class PaymentService {
             paymentRepository.insertPaymentFail(payment);
             throw e;
         }
+    }
+
+    public Map<String, PaymentSummary> getPaymentsSummary(Instant from, Instant to) {
+        return paymentRepository.getPaymentsSummary(from, to);
     }
 }
