@@ -18,11 +18,12 @@ public class PaymentProcessorClient {
         this.paymentProcessorSecondary = paymentProcessorSecondary;
     }
 
-    public PaymentProcessorMessageResponse makePayment(PaymentProcessorRequest paymentRequest) {
+    public PaymentProcessorResponse makePayment(PaymentProcessorRequest paymentRequest) {
         logger.info("Calling make payment service, request={}", paymentRequest);
 
         try {
-            return paymentProcessor.makePayment(paymentRequest);
+            PaymentProcessorMessageResponse paymentProcessorMessageResponse = paymentProcessor.makePayment(paymentRequest);
+            return new PaymentProcessorResponse(true, paymentProcessorMessageResponse.message());
         } catch (Exception e) {
             // the FeignException comes wrapped by another Exception when using a circuit breaker
             FeignException feignException = unwrapFeignException(e);
@@ -41,11 +42,12 @@ public class PaymentProcessorClient {
         }
     }
 
-    private PaymentProcessorMessageResponse makePaymentFallback(PaymentProcessorRequest paymentRequest) {
+    private PaymentProcessorResponse makePaymentFallback(PaymentProcessorRequest paymentRequest) {
         logger.info("Calling make payment fallback service, request={}", paymentRequest);
 
         try {
-            return paymentProcessorSecondary.makePayment(paymentRequest);
+            PaymentProcessorMessageResponse paymentProcessorMessageResponse = paymentProcessorSecondary.makePayment(paymentRequest);
+            return new PaymentProcessorResponse(false, paymentProcessorMessageResponse.message());
         } catch (Exception e) {
             FeignException feignException = unwrapFeignException(e);
             throw new PaymentProcessorException(feignException != null ? feignException : e);

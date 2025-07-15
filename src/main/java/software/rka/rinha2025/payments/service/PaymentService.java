@@ -1,18 +1,12 @@
 package software.rka.rinha2025.payments.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import software.rka.rinha2025.payments.domain.Payment;
-import software.rka.rinha2025.payments.domain.PaymentStatus;
-import software.rka.rinha2025.payments.infrastructure.outbox.OutboxMessageStatus;
-import software.rka.rinha2025.payments.infrastructure.outbox.OutboxMessageType;
-import software.rka.rinha2025.payments.persistence.OutboxMessageEntity;
-import software.rka.rinha2025.payments.persistence.OutboxMessageRepository;
-import software.rka.rinha2025.payments.persistence.PaymentEntity;
+import software.rka.rinha2025.payments.infrastructure.payment.PaymentProcessorClient;
+import software.rka.rinha2025.payments.infrastructure.payment.PaymentProcessorRequest;
+import software.rka.rinha2025.payments.infrastructure.payment.PaymentProcessorResponse;
 import software.rka.rinha2025.payments.persistence.PaymentRepository;
 
 import java.time.Instant;
@@ -23,51 +17,37 @@ public class PaymentService {
     private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
 
     private final PaymentRepository paymentRepository;
-    private final OutboxMessageRepository outboxRepository;
-    private final ObjectMapper objectMapper;
+    private final PaymentProcessorClient paymentProcessorClient;
 
     public PaymentService(PaymentRepository paymentRepository,
-                          OutboxMessageRepository outboxRepository,
-                          ObjectMapper objectMapper) {
+                          PaymentProcessorClient paymentProcessorClient) {
         this.paymentRepository = paymentRepository;
-        this.outboxRepository = outboxRepository;
-        this.objectMapper = objectMapper;
+        this.paymentProcessorClient = paymentProcessorClient;
     }
 
-    @Transactional
     public Payment createPayment(CreatePaymentInput input) {
-        PaymentEntity paymentEntity = new PaymentEntity(input.correlationId(),
+        Payment payment = new Payment(input.correlationId(),
                 input.amount(),
-                PaymentStatus.PENDING);
+                Instant.now());
 
-        PaymentEntity savedPaymentEntity = paymentRepository.save(paymentEntity);
+        Payment savedPayment = paymentRepository.insert(payment);
 
-        Payment payment =  savedPaymentEntity.toPayment();
-
-        saveProcessPaymentOutbox(payment);
+        callPaymentProcessor(savedPayment);
 
         return payment;
     }
 
-    public void updateWithStatus(Payment payment, PaymentStatus status) {
-        paymentRepository.updateWithStatus(payment.getId(), status, Instant.now());
-    }
-
-    private void saveProcessPaymentOutbox(Payment payment) {
+    private void callPaymentProcessor(Payment payment) {
         try {
-            String paymentPayload = objectMapper.writeValueAsString(payment);
+            PaymentProcessorResponse paymentProcessorResponse = paymentProcessorClient.makePayment(new PaymentProcessorRequest(payment.getCorrelationId(),
+                    payment.getAmount(),
+                    payment.getCreatedAt()));
 
-            OutboxMessageEntity outboxEntity = new OutboxMessageEntity(
-                    OutboxMessageType.PROCESS_PAYMENT,
-                    paymentPayload,
-                    OutboxMessageStatus.NEW
-            );
-
-            outboxRepository.save(outboxEntity);
-
-        } catch (JsonProcessingException e) {
-            logger.error("Error processing JSON, payment='{}'", payment);
-            throw new RuntimeException("Error processing JSON", e);
+            paymentRepository.insertPaymentSuccess(payment, paymentProcessorResponse.isPaymentProcessorDefault());
+        } catch (RuntimeException e) {
+            logger.error("Error calling payment processor, payment={}", payment, e);
+            paymentRepository.insertPaymentFail(payment);
+            throw e;
         }
     }
 }

@@ -1,17 +1,23 @@
 CREATE TABLE payment (
     id BIGSERIAL PRIMARY KEY,
-    correlation_id UUID NOT NULL,
-    amount NUMERIC(19, 2) NOT NULL,
-    status TEXT NOT NULL,
-    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    modified_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    correlation_id UUID,
+    amount BIGINT,
+    created_at TIMESTAMP WITHOUT TIME ZONE
 );
 
-CREATE TABLE outbox (
+CREATE TABLE payment_success (
     id BIGSERIAL PRIMARY KEY,
-    type TEXT NOT NULL,
-    payload TEXT NOT NULL,
-    status TEXT NOT NULL,
-    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    modified_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    payment_id INTEGER,
+    amount BIGINT,
+    processor_default BOOLEAN,
+    created_at TIMESTAMP WITHOUT TIME ZONE
 );
+
+CREATE TABLE payment_fail (
+    id BIGSERIAL PRIMARY KEY,
+    payment_id INTEGER,
+    amount BIGINT,
+    created_at TIMESTAMP WITHOUT TIME ZONE
+);
+
+CREATE INDEX idx_payment_success_created_at_processor_default ON payment_success(created_at, processor_default);

@@ -9,9 +9,7 @@ public class Payment {
     private Long id;
     private UUID correlationId;
     private BigDecimal amount;
-    private PaymentStatus status;
     private Instant createdAt;
-    private Instant modifiedAt;
 
     Payment() {
     }
@@ -19,15 +17,19 @@ public class Payment {
     public Payment(Long id,
                    UUID correlationId,
                    BigDecimal amount,
-                   PaymentStatus status,
-                   Instant createdAt,
-                   Instant modifiedAt) {
+                   Instant createdAt) {
         this.id = id;
         this.correlationId = correlationId;
         this.amount = amount;
-        this.status = status;
         this.createdAt = createdAt;
-        this.modifiedAt = modifiedAt;
+    }
+
+    public Payment(UUID correlationId,
+                   BigDecimal amount,
+                   Instant createdAt) {
+        this.correlationId = correlationId;
+        this.amount = amount;
+        this.createdAt = createdAt;
     }
 
     public Long getId() {
@@ -42,15 +44,7 @@ public class Payment {
         return amount;
     }
 
-    public PaymentStatus getStatus() {
-        return status;
-    }
-
     public Instant getCreatedAt() {
         return createdAt;
-    }
-
-    public Instant getModifiedAt() {
-        return modifiedAt;
     }
 }
